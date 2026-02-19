@@ -121,7 +121,7 @@ protected:
 
         // Fast path: previous byte was not 0xFF and none of the 4 output bytes is 0xFF.
         // This is the common case (~98.4% of flushes) — write 4 bytes directly without loop or FF-handling.
-        if (!is_ff_written_)
+        if (!is_ff_written_ && free_bit_count_ <= 0)
         {
             const auto b0{static_cast<std::byte>(bit_buffer_ >> 24)};
             const auto b1{static_cast<std::byte>(bit_buffer_ >> 16)};
