@@ -93,7 +93,8 @@ public:
     }
 
     /// <summary>
-    /// Computes the Golomb coding parameter using the algorithm as defined in ISO 14495-1, code segment A.10
+    /// Computes the Golomb coding parameter using the algorithm as defined in ISO 14495-1, code segment A.10.
+    /// Loop-based: optimal for the decoder where branch prediction can speculate on k.
     /// </summary>
     [[nodiscard]]
     FORCE_INLINE int32_t compute_golomb_coding_parameter() const
@@ -105,6 +106,23 @@ public:
         }
 
         if (UNLIKELY(k == max_k_value))
+            impl::throw_jpegls_error(jpegls_errc::invalid_data);
+
+        return k;
+    }
+
+    /// <summary>
+    /// CLZ-based Golomb parameter computation: O(1) via dual-countl_zero.
+    /// Better throughput for the encoder where k is not on the critical latency path.
+    /// </summary>
+    [[nodiscard]]
+    FORCE_INLINE int32_t compute_golomb_coding_parameter_for_encoder() const
+    {
+        int32_t k{std::max(0, countl_zero(static_cast<uint32_t>(n_)) - countl_zero(static_cast<uint32_t>(a_)))};
+        if (n_ << k < a_)
+            ++k;
+
+        if (UNLIKELY(k >= max_k_value))
             impl::throw_jpegls_error(jpegls_errc::invalid_data);
 
         return k;

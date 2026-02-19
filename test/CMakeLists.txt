@@ -24,3 +24,7 @@ endif()
 set_target_properties(charlstest PROPERTIES CXX_VISIBILITY_PRESET hidden)
 
 target_link_libraries(charlstest PRIVATE charls)
+
+add_executable(charls_benchmark_8k12 benchmark_8k12.cpp)
+set_target_properties(charls_benchmark_8k12 PROPERTIES CXX_VISIBILITY_PRESET hidden)
+target_link_libraries(charls_benchmark_8k12 PRIVATE charls)
